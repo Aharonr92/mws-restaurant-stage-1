@@ -1,23 +1,12 @@
 let restaurants, neighborhoods, cuisines, map;
 var markers = [];
 
-
-/**
- * Register Service Worker
- */
-registerServiceWorker = () => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-  }
-};
-
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', () => {
   fetchNeighborhoods();
   fetchCuisines();
-  registerServiceWorker();
 });
 
 /**
@@ -152,7 +141,7 @@ createRestaurantHTML = (restaurant) => {
   image.alt = `photo of ${restaurant.name} restaurant`;
   li.append(image);
 
-  const name = document.createElement('h1');
+  const name = document.createElement('h2');
   name.innerHTML = restaurant.name;
   li.append(name);
 

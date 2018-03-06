@@ -11,17 +11,17 @@
 
 <body class="inside">
 <header>
-    <nav>
-        <h1><a href="/">Restaurant Reviews</a></h1>
+    <h1><a href="/">Restaurant Reviews</a></h1>
+    <nav role="navigation" aria-labelledby="breadcrumb">
+        <ul id="breadcrumb">
+            <li><a href="/">Home</a></li>
+        </ul>
     </nav>
-    <ul id="breadcrumb">
-        <li><a href="/">Home</a></li>
-    </ul>
 </header>
 
-<main>
+<main role="main">
     <section id="restaurant-container">
-        <h1 id="restaurant-name" tabindex="0"></h1>
+        <h2 id="restaurant-name" tabindex="0"></h2>
         <img src="#" id="restaurant-img" alt="" tabindex="0">
         <div aria-label="Cuisine">
             <p id="restaurant-cuisine" tabindex="0"></p>
@@ -33,11 +33,11 @@
             <caption class="hidden">Operating Hours</caption>
         </table>
         <section id="reviews-container">
-            <h2>Reviews</h2>
+            <h3>Reviews</h3>
             <ul id="reviews-list"></ul>
         </section>
     </section>
-    <aside id="map-container">
+    <aside id="map-container" role="complementary">
         <div id="map"></div>
     </aside>
 </main>
@@ -46,6 +46,7 @@
     Copyright (c) 2017 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.
 </footer>
 
+<script src="/js/register_sw.js"></script>
 <script src="/js/db_helper.js"></script>
 <script src="/js/restaurant_info.js"></script>
 <script async defer

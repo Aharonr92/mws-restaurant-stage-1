@@ -11,12 +11,10 @@
 
 <body>
 <header>
-    <nav>
-        <h1><a href="/">Restaurant Reviews</a></h1>
-    </nav>
+    <h1><a href="/">Restaurant Reviews</a></h1>
 </header>
 
-<main>
+<main role="main">
     <section id="select-restaurant">
         <div class="filter-options">
             <h2>Filter Results</h2>
@@ -34,11 +32,12 @@
             <ul id="restaurants-list"></ul>
         </section>
     </section>
-    <section>
+    <aside role="complementary">
         <div id="map"></div>
-    </section>
+    </aside>
 </main>
 
+<script src="/js/register_sw.js"></script>
 <script src="/js/db_helper.js"></script>
 <script src="/js/main.js"></script>
 <script async defer
