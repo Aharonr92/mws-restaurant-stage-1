@@ -1,5 +1,4 @@
-let restaurant;
-var map;
+let restaurant, map;
 
 /**
  * Initialize Google map, called from HTML.
@@ -140,7 +139,7 @@ createReviewHTML = (review) => {
   li.appendChild(comments);
 
   return li;
-}
+};
 
 /**
  * Add restaurant name to the breadcrumb navigation menu
@@ -166,4 +165,4 @@ getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
+};
