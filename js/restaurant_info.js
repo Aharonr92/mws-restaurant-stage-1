@@ -1,22 +1,30 @@
 let restaurant, map;
+let mapLoaded = false;
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetchRestaurantFromURL((error, restaurant) => {
+    if (error) { // Got an error!
+      console.error(error);
+    } else {
+      fillBreadcrumb();
+      lazyLoadImages();
+      document.getElementById('map').style.backgroundImage = `url(https://maps.googleapis.com/maps/api/staticmap?size=311x640&markers=size:mid|${restaurant.latlng.lat},${restaurant.latlng.lng}&key=AIzaSyDKsWF94cMGUciBs96YIpbCmexfRKT75x4&scale=2)`
+    }
+  });
+});
 
 /**
  * Initialize Google map, called from HTML.
  */
 window.initMap = () => {
-  fetchRestaurantFromURL((error, restaurant) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
-      self.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 16,
-        center: restaurant.latlng,
-        scrollwheel: false
-      });
-      fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
-    }
+  mapLoaded = true;
+  self.map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 16,
+    center: self.restaurant.latlng,
+    scrollwheel: false
   });
+  DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
 };
 
 /**
@@ -54,7 +62,8 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   address.innerHTML = restaurant.address;
 
   const image = document.getElementById('restaurant-img');
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.className = 'lozad';
+  image.setAttribute('data-src', DBHelper.imageUrlForRestaurant(restaurant));
   image.alt = `photo of ${restaurant.name} restaurant`;
 
 
@@ -165,4 +174,21 @@ getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+};
+
+
+/**
+ * Lazy load images
+ */
+lazyLoadImages = () => {
+  const observer = lozad();
+  observer.observe();
+};
+
+loadRealMap = () => {
+  if (mapLoaded) return;
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDKsWF94cMGUciBs96YIpbCmexfRKT75x4&libraries=places&callback=initMap';
+  document.body.appendChild(script);
 };

@@ -1,5 +1,6 @@
 let restaurants, neighborhoods, cuisines, map;
 var markers = [];
+let mapLoaded = false;
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
@@ -7,6 +8,7 @@ var markers = [];
 document.addEventListener('DOMContentLoaded', () => {
   fetchNeighborhoods();
   fetchCuisines();
+  updateRestaurants();
 });
 
 /**
@@ -68,6 +70,7 @@ fillCuisinesHTML = (cuisines = self.cuisines) => {
  * Initialize Google map, called from HTML.
  */
 window.initMap = () => {
+  mapLoaded = true;
   let loc = {
     lat: 40.722216,
     lng: -73.987501
@@ -77,7 +80,7 @@ window.initMap = () => {
     center: loc,
     scrollwheel: false
   });
-  updateRestaurants();
+  setTimeout(addMarkersToMap(restaurants), 0)
 };
 
 /**
@@ -99,6 +102,8 @@ updateRestaurants = () => {
     } else {
       resetRestaurants(restaurants);
       fillRestaurantsHTML();
+      addMarkersToMap(restaurants);
+      lazyLoadImages()
     }
   })
 };
@@ -126,7 +131,6 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
   restaurants.forEach(restaurant => {
     ul.append(createRestaurantHTML(restaurant));
   });
-  addMarkersToMap();
 };
 
 /**
@@ -136,8 +140,8 @@ createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
   const image = document.createElement('img');
-  image.className = 'restaurant-img';
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.className = 'restaurant-img lozad';
+  image.setAttribute('data-src', DBHelper.imageUrlForRestaurant(restaurant));
   image.alt = `photo of ${restaurant.name} restaurant`;
   li.append(image);
 
@@ -163,16 +167,37 @@ createRestaurantHTML = (restaurant) => {
   return li
 };
 
+
+/**
+ * Lazy load images
+ */
+lazyLoadImages = () => {
+  const observer = lozad();
+  observer.observe();
+};
+
 /**
  * Add markers for current restaurants to the map.
  */
 addMarkersToMap = (restaurants = self.restaurants) => {
-  restaurants.forEach(restaurant => {
-    // Add marker to the map
-    const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
-    google.maps.event.addListener(marker, 'click', () => {
-      window.location.href = marker.url
+  if (mapLoaded) {
+    restaurants.forEach(restaurant => {
+      // Add marker to the map
+      const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
+      google.maps.event.addListener(marker, 'click', () => {
+        window.location.href = marker.url
+      });
+      self.markers.push(marker);
     });
-    self.markers.push(marker);
-  });
+  } else {
+    document.getElementById('map').style.backgroundImage = `url(https://maps.googleapis.com/maps/api/staticmap?size=640x200&markers=size:mid|${restaurants.map(r => `${r.latlng.lat},${r.latlng.lng}|`).join('')}&key=AIzaSyDKsWF94cMGUciBs96YIpbCmexfRKT75x4&scale=2&zoom=10&maptype=terrain)`
+  }
+};
+
+loadRealMap = () => {
+  if (mapLoaded) return;
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDKsWF94cMGUciBs96YIpbCmexfRKT75x4&libraries=places&callback=initMap';
+  document.body.appendChild(script);
 };

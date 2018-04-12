@@ -3,29 +3,38 @@ const allCaches = [
   staticCacheName,
 ];
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(staticCacheName).then((cache) => {
       return cache.addAll([
         '/',
+        '/sw.js',
+        '/manifest.json',
+        '/favicon.ico',
         '/index.html',
         '/restaurant.html',
-        '/css/styles.css',
-        '/js/db_helper.js',
-        '/js/main.js',
-        '/js/register_sw.js',
-        '/js/restaurant_info.js',
-        '/data/restaurants.json',
-        '/img/1.jpg',
-        '/img/2.jpg',
-        '/img/3.jpg',
-        '/img/4.jpg',
-        '/img/5.jpg',
-        '/img/6.jpg',
-        '/img/7.jpg',
-        '/img/8.jpg',
-        '/img/9.jpg',
-        '/img/10.jpg'
+        // '/css/styles.css',
+        // '/js/vendor.js',
+        // '/js/main.js',
+        // '/js/restaurant_info.js',
+        '/img/1.webp',
+        '/img/2.webp',
+        '/img/3.webp',
+        '/img/4.webp',
+        '/img/5.webp',
+        '/img/6.webp',
+        '/img/7.webp',
+        '/img/8.webp',
+        '/img/9.webp',
+        '/img/10.webp',
+        '/img/icons/icon-72x72.webp',
+        '/img/icons/icon-96x96.webp',
+        '/img/icons/icon-128x128.webp',
+        '/img/icons/icon-144x144.webp',
+        '/img/icons/icon-152x152.webp',
+        '/img/icons/icon-192x192.webp',
+        '/img/icons/icon-384x384.webp',
+        '/img/icons/icon-512x512.webp',
       ]);
     })
   );
@@ -34,27 +43,23 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.filter((cacheName) => {
-          return cacheName.startsWith('mws-restaurant') && !allCaches.includes(cacheName);
-        }).map((cacheName) => {
-          return caches.delete(cacheName);
-        })
-      );
+      return Promise.all(cacheNames.filter(name => name.startsWith('mws-restaurant') && !allCaches.includes(name)).map((cache) => caches.delete(cache)));
     })
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || caches.open('mws-restaurant').then(cache => {
-        return fetch(event.request).then(response => {
-          return cache.put(event.request, response.clone()).then(() => {
-            return response;
+  if (event.request.method === 'GET') {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || caches.open('mws-restaurant').then(cache => {
+          return fetch(event.request).then(response => {
+            return cache.put(event.request, response.clone()).then(() => {
+              return response;
+            });
           });
         });
-      });
-    })
-  );
+      })
+    );
+  }
 });
