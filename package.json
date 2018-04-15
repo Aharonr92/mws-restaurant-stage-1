@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Restaurant Reviews",
   "scripts": {
-    "start": "gulp dev serve watch",
+    "start": "gulp dev && gulp serve watch",
     "build": "gulp build",
-    "serveBuild": "gulp build &&gulp serve"
+    "serveBuild": "gulp build && gulp serve"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,7 @@
     "vinyl-paths": "^2.1.0"
   },
   "dependencies": {
+    "idb": "^2.1.1",
     "lozad": "^1.3.0"
   }
 }

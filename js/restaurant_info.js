@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       fillBreadcrumb();
       lazyLoadImages();
-      document.getElementById('map').style.backgroundImage = `url(https://maps.googleapis.com/maps/api/staticmap?size=311x640&markers=size:mid|${restaurant.latlng.lat},${restaurant.latlng.lng}&key=AIzaSyDKsWF94cMGUciBs96YIpbCmexfRKT75x4&scale=2)`
+      loadStaticMap(restaurant);
     }
   });
 });
@@ -183,6 +183,19 @@ getParameterByName = (name, url) => {
 lazyLoadImages = () => {
   const observer = lozad();
   observer.observe();
+};
+
+loadStaticMap = (restaurant) => {
+  const mapElement = document.getElementById('map');
+  let clientHeight = mapElement.clientHeight;
+  let clientWidth = mapElement.clientWidth;
+  let scale = 1;
+  if (clientHeight > 640 || clientWidth > 640) {
+    clientHeight = Math.floor(clientHeight / 2);
+    clientWidth = Math.floor(clientWidth / 2);
+    scale = 2;
+  }
+  mapElement.style.backgroundImage = `url(https://maps.googleapis.com/maps/api/staticmap?size=${clientWidth}x${clientHeight}&markers=size:mid|${restaurant.latlng.lat},${restaurant.latlng.lng}&key=AIzaSyDKsWF94cMGUciBs96YIpbCmexfRKT75x4&scale=${scale})`
 };
 
 loadRealMap = () => {

@@ -2,6 +2,21 @@
  * Common database helper functions.
  */
 class DBHelper {
+  constructor(){
+
+  }
+
+  static get DB_NAME() {
+    return 'mws-restaurant'
+  }
+
+  static get DB_VERSION() {
+    return 1
+  }
+
+  static get STORE_NAME() {
+    return 'restaurants'
+  }
 
   /**
    * Database URL.
@@ -11,22 +26,47 @@ class DBHelper {
     return "http://localhost:1337/restaurants";
   }
 
+
+  static dbPromise() {
+    // If the browser doesn't support service worker,
+    // we don't care about having a database
+    if (!navigator.serviceWorker) {
+      return Promise.resolve();
+    }
+
+    return idb.open(this.DB_NAME, this.DB_VERSION, upgradeDb => {
+      const store = upgradeDb.createObjectStore(this.STORE_NAME, {
+        keyPath: 'id'
+      });
+    });
+  }
+
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', DBHelper.DATABASE_URL);
-    xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
-        const restaurants = JSON.parse(xhr.responseText);
-        callback(null, restaurants);
-      } else { // Oops!. Got an error from server.
-        const error = (`Request failed. Returned status of ${xhr.status}`);
-        callback(error, null);
+    DBHelper.dbPromise().then(db => {
+      if (!db) return;
+      return db.transaction(DBHelper.STORE_NAME).objectStore(DBHelper.STORE_NAME).getAll();
+    }).then(data => {
+      if (data && data.length > 0) return callback(null, data);
+      else {
+        fetch(this.DATABASE_URL)
+          .then(res => {
+            if (res.status !== 200) console.error(`error fetching restaurants data. status: ${res.status}`);
+            else return res.json();
+          })
+          .then(restaurants => {
+            DBHelper.dbPromise().then(db => {
+              if (!db) return;
+              const store = db.transaction(DBHelper.STORE_NAME, 'readwrite').objectStore(DBHelper.STORE_NAME);
+              restaurants.map(restaurant => store.put(restaurant));
+            });
+            return callback(null, restaurants);
+          })
+          .catch(error => callback(error, null));
       }
-    };
-    xhr.send();
+    });
   }
 
   /**
@@ -148,7 +188,7 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant.photograph}.webp`);
+    return (`/img/${restaurant&& restaurant.photograph?restaurant.photograph:'no_restaurant_img'}.webp`);
   }
 
   /**

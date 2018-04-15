@@ -31,7 +31,7 @@ gulp.task('clean', () => gulp.src(paths.dest, {allowEmpty: true}).pipe(vinylPath
 gulp.task('images', () => gulp.src('img/**/*.*').pipe(webp({method: 6})).pipe(gulp.dest(paths.destImg)));
 
 gulp.task('create-vendor-dev', () => {
-  return gulp.src(['js/db_helper.js', 'js/register_sw.js', 'node_modules/lozad/dist/lozad.min.js'])
+  return gulp.src(['js/db_helper.js', 'js/register_sw.js', 'node_modules/lozad/dist/lozad.min.js', 'node_modules/idb/lib/idb.js'])
     .pipe(sourceMaps.init())
     .pipe(concat('vendor.js'))
     .pipe(uglify())
@@ -40,7 +40,7 @@ gulp.task('create-vendor-dev', () => {
 });
 
 gulp.task('create-vendor-prod', () => {
-  return gulp.src(['js/db_helper.js', 'js/register_sw.js', 'node_modules/lozad/dist/lozad.min.js'])
+  return gulp.src(['js/db_helper.js', 'js/register_sw.js', 'node_modules/lozad/dist/lozad.min.js', 'node_modules/idb/lib/idb.js'])
     .pipe(concat('vendor.js'))
     .pipe(uglify())
     .pipe(gulp.dest(paths.tmpJs));
