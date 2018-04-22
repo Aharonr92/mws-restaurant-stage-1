@@ -51,6 +51,17 @@ fetchRestaurantFromURL = (callback) => {
   }
 };
 
+fetchReviewsForRestaurant = () => {
+  if (self.restaurant.reviews)
+    fillReviewsHTML(self.restaurant.reviews);
+  else {
+    DBHelper.fetchReviewsByRestaurantId(self.restaurant.id, (error, reviews) => {
+      self.restaurant.reviews = reviews;
+      fillReviewsHTML(self.restaurant.reviews);
+    });
+  }
+};
+
 /**
  * Create restaurant HTML and add it to the webpage
  */
@@ -75,7 +86,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     fillRestaurantHoursHTML();
   }
   // fill reviews
-  fillReviewsHTML();
+  fetchReviewsForRestaurant();
 };
 
 /**
@@ -139,7 +150,7 @@ createReviewHTML = (review) => {
   li.appendChild(rating);
 
   const date = document.createElement('span');
-  date.innerHTML = review.date;
+  date.innerHTML = new Date(review.createdAt).toDateString();
   li.appendChild(date);
 
 
@@ -204,4 +215,45 @@ loadRealMap = () => {
   script.type = 'text/javascript';
   script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDKsWF94cMGUciBs96YIpbCmexfRKT75x4&libraries=places&callback=initMap';
   document.body.appendChild(script);
+};
+
+showAddReviewDialog = () => {
+  document.getElementById('addReviewDialog').showModal()
+};
+
+if (!window.HTMLDialogElement) {
+  const script = document.createElement('script');
+  script.src = 'dialog-polyfill.js';
+  script.type = 'text/javascript';
+  script.onload = function () {
+    const dialog = document.querySelector('dialog');
+    dialogPolyfill.registerDialog(dialog);
+  };
+  document.body.appendChild(script);
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = 'dialog-polyfill.css';
+  document.head.appendChild(link);
+}
+
+submitReview = () => {
+  const review = {
+    restaurant_id: self.restaurant.id,
+    name: document.getElementById('name').value,
+    rating: parseInt(document.querySelector('input[name="rating"]:checked').value),
+    comments: document.getElementById('comments').value,
+    createdAt: new Date().getTime()
+  };
+
+  DBHelper.addReview(review);
+
+  document.querySelector('form').reset();
+  document.getElementById('reviews-list').appendChild(createReviewHTML(review));
+  document.querySelector('dialog').close();
+};
+
+cancelAddReview = () => {
+  document.querySelector('form').reset();
+  document.querySelector('dialog').close();
 };

@@ -35,6 +35,7 @@
     "vinyl-paths": "^2.1.0"
   },
   "dependencies": {
+    "dialog-polyfill": "^0.4.9",
     "idb": "^2.1.1",
     "lozad": "^1.3.0"
   }

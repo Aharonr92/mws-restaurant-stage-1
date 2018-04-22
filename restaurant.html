@@ -35,7 +35,10 @@
             <caption class="hidden">Operating Hours</caption>
         </table>
         <section id="reviews-container">
-            <h3>Reviews</h3>
+            <div id="reviews-header">
+                <h3>Reviews</h3>
+                <button id="add-review" onclick="showAddReviewDialog()"> +</button>
+            </div>
             <ul id="reviews-list"></ul>
         </section>
     </section>
@@ -43,6 +46,52 @@
         <div id="map" role="application" aria-label="Google map for finding restaurants" onclick="loadRealMap()"></div>
     </aside>
 </main>
+<!--<div id="snackbar"></div>-->
+
+<dialog id="addReviewDialog">
+    <form method="dialog">
+        <section>
+            <h3>Add A Review</h3>
+            <div class="group">
+                <input type="text" class="input" id="name" name="name" required aria-label="Your name" aria-required="true" autocomplete="name">
+                <span class="highlight"></span>
+                <span class="bar"></span>
+                <label class="label">Name</label>
+            </div>
+            <div class="group rating-group">
+                <label for="addReviewRating">Rating</label>
+                <fieldset class="rating" id="addReviewRating" aria-label="Rating" role="group">
+
+                    <input type="radio" id="5star" name="rating" value="5"/>
+                    <label class="full" for="5star" title="Excellent"></label>
+
+                    <input type="radio" id="4star" name="rating" value="4"/>
+                    <label class="full" for="4star" title="Good"></label>
+
+                    <input type="radio" id="3star" name="rating" value="3"/>
+                    <label class="full" for="3star" title="Ok"></label>
+
+                    <input type="radio" id="2star" name="rating" value="2"/>
+                    <label class="full" for="2star" title="Bad"></label>
+
+                    <input type="radio" id="1star" name="rating" value="1" required/>
+                    <label class="full" for="1star" title="Worst"></label>
+
+                </fieldset>
+            </div>
+            <div class="group">
+                <textarea class="input" id="comments" name="comments" required aria-label="Your comments" aria-required="true" rows="2" spellcheck="true"></textarea>
+                <span class="highlight"></span>
+                <span class="bar"></span>
+                <label class="label">comments</label>
+            </div>
+        </section>
+        <div id="menu">
+            <button id="cancel" type="reset" onclick="cancelAddReview()">Cancel</button>
+            <button id="submit" onclick="submitReview()">Confirm</button>
+        </div>
+    </form>
+</dialog>
 
 <footer id="footer">
     Copyright (c) 2017 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.

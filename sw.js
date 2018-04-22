@@ -1,4 +1,4 @@
-const staticCacheName = 'mws-restaurant-v1';
+const staticCacheName = 'mws-restaurant-v4';
 const imagesCacheName = 'mws-restaurant-images';
 const allCaches = [
   staticCacheName,
@@ -6,10 +6,14 @@ const allCaches = [
 ];
 
 const statics = [
-  '/manifest.json',
-  '/favicon.ico',
-  '/index.html',
-  '/restaurant.html',
+  'manifest.json',
+  'favicon.ico',
+  'index.html',
+  'restaurant.html',
+  'js/vendor.js',
+  'css/styles.css',
+  'js/restaurant_info.js',
+  'js/main.js'
 ];
 
 const images = [
@@ -51,11 +55,17 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method === 'GET') {
     event.respondWith(
-      caches.match(event.request).then(response => {
+      caches.match(event.request, {ignoreSearch: true}).then(response => {
         if (event.request.cache === 'only-if-cached' && event.request.mode !== 'same-origin') return;
 
         return response || fetch(event.request); //caches.open('mws-restaurant').then(cache => fetch(event.request).then(response => cache.put(event.request, response.clone()).then(() => response)));
       })
     );
+  }
+});
+
+self.addEventListener('message', function (event) {
+  if (event.data.action === 'skipWaiting') {
+    self.skipWaiting();
   }
 });

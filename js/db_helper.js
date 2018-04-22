@@ -2,7 +2,7 @@
  * Common database helper functions.
  */
 class DBHelper {
-  constructor(){
+  constructor() {
 
   }
 
@@ -14,16 +14,24 @@ class DBHelper {
     return 1
   }
 
-  static get STORE_NAME() {
+  static get RESTAURANTS_STORE_NAME() {
     return 'restaurants'
   }
 
-  /**
-   * Database URL.
-   * Change this to restaurants.json file location on your server.
-   */
+  static get REVIEWS_STORE_NAME() {
+    return 'reviews'
+  }
+
   static get DATABASE_URL() {
-    return "http://localhost:1337/restaurants";
+    return "http://localhost:1337";
+  }
+
+  static get RESTAURANTS_URL() {
+    return this.DATABASE_URL + "/restaurants";
+  }
+
+  static get REVIEWS_URL() {
+    return this.DATABASE_URL + "/reviews";
   }
 
 
@@ -35,9 +43,14 @@ class DBHelper {
     }
 
     return idb.open(this.DB_NAME, this.DB_VERSION, upgradeDb => {
-      const store = upgradeDb.createObjectStore(this.STORE_NAME, {
-        keyPath: 'id'
+      const restaurantsStore = upgradeDb.createObjectStore(this.RESTAURANTS_STORE_NAME, {
+        keyPath: 'id',
+        autoIncrement: true
       });
+      restaurantsStore.createIndex('hesUpdates', 'hesUpdates', {unique: false});
+
+      const reviewsStore = upgradeDb.createObjectStore(this.REVIEWS_STORE_NAME, {keyPath: 'id', autoIncrement: true});
+      reviewsStore.createIndex('hesUpdates', 'hesUpdates', {unique: false});
     });
   }
 
@@ -47,20 +60,23 @@ class DBHelper {
   static fetchRestaurants(callback) {
     DBHelper.dbPromise().then(db => {
       if (!db) return;
-      return db.transaction(DBHelper.STORE_NAME).objectStore(DBHelper.STORE_NAME).getAll();
+      return db.transaction(DBHelper.RESTAURANTS_STORE_NAME).objectStore(DBHelper.RESTAURANTS_STORE_NAME).getAll();
     }).then(data => {
       if (data && data.length > 0) return callback(null, data);
       else {
-        fetch(this.DATABASE_URL)
+        fetch(this.RESTAURANTS_URL)
           .then(res => {
-            if (res.status !== 200) console.error(`error fetching restaurants data. status: ${res.status}`);
+            if (res.status !== 200) callback(error = (`error fetching restaurants data. status: ${res.status}`), null);
             else return res.json();
           })
           .then(restaurants => {
             DBHelper.dbPromise().then(db => {
               if (!db) return;
-              const store = db.transaction(DBHelper.STORE_NAME, 'readwrite').objectStore(DBHelper.STORE_NAME);
-              restaurants.map(restaurant => store.put(restaurant));
+              const store = db.transaction(DBHelper.RESTAURANTS_STORE_NAME, 'readwrite').objectStore(DBHelper.RESTAURANTS_STORE_NAME);
+              restaurants.map(restaurant => {
+                restaurant['hesUpdates'] = 'false';
+                store.put(restaurant);
+              });
             });
             return callback(null, restaurants);
           })
@@ -188,7 +204,7 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant&& restaurant.photograph?restaurant.photograph:'no_restaurant_img'}.webp`);
+    return (`/img/${restaurant && restaurant.photograph ? restaurant.photograph : 'no_restaurant_img'}.webp`);
   }
 
   /**
@@ -203,4 +219,126 @@ class DBHelper {
       animation: google.maps.Animation.DROP
     });
   }
+
+  /**
+   * Fetch all restaurants.
+   */
+  static fetchReviews(callback) {
+    DBHelper.dbPromise().then(db => {
+      if (!db) return;
+      return db.transaction(DBHelper.REVIEWS_STORE_NAME).objectStore(DBHelper.REVIEWS_STORE_NAME).getAll();
+    }).then(data => {
+      if (data && data.length > 0) return callback(null, data);
+      else {
+        fetch(this.REVIEWS_URL)
+          .then(res => {
+            if (res.status !== 200) callback(error = (`error fetching reviews data. status: ${res.status}`), null);
+            else return res.json();
+          })
+          .then(reviews => {
+            DBHelper.dbPromise().then(db => {
+              if (!db) return;
+              const store = db.transaction(DBHelper.REVIEWS_STORE_NAME, 'readwrite').objectStore(DBHelper.REVIEWS_STORE_NAME);
+              reviews.map(review => {
+                review['hesUpdates'] = 'false';
+                store.put(review);
+              });
+            });
+            return callback(null, reviews);
+          })
+          .catch(error => callback(error, null));
+      }
+    });
+  }
+
+  /**
+   * Fetch a review by its ID.
+   */
+  static fetchReviewsByRestaurantId(restaurantId, callback) {
+    // fetch all reviews with proper error handling.
+    DBHelper.fetchReviews((error, reviews) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        const filteredReviews = reviews.filter(r => r.restaurant_id == restaurantId);
+        if (filteredReviews) { // Got the reviews
+          callback(null, filteredReviews);
+        } else { // Reviews does not exist in the database
+          callback('Reviews does not exist', null);
+        }
+      }
+    });
+  }
+
+  static addReview(review) {
+    if (!review) return;
+    review.hasOwnProperty('id') && delete review.id;
+
+    fetch(DBHelper.REVIEWS_URL, {
+      method: 'POST',
+      body: JSON.stringify(review)
+    })
+      .then(resp => {
+        if (resp.status !== 201) {
+          resp['hesUpdates'] = 'true';
+        }
+        return resp.json();
+      })
+      .then(rev => {
+        rev['hesUpdates'] = 'false';
+        DBHelper.addReviewToDB(rev, () => {
+        });
+      })
+      .catch(err => {
+        console.log(review)
+        review['hesUpdates'] = 'true';
+        DBHelper.addReviewToDB(review, () => {
+        });
+        return review;
+      });
+    return review;
+  }
+
+  static addReviewToDB(review, callback) {
+    DBHelper.dbPromise().then(db => {
+      if (!db) return;
+      db.transaction(DBHelper.REVIEWS_STORE_NAME, 'readwrite').objectStore(DBHelper.REVIEWS_STORE_NAME).put(review);
+      callback()
+    }).catch(err => console.log(err))
+  }
+
+  static deleteReviewFromDB(id, callback) {
+    DBHelper.dbPromise().then(db => {
+      if (!db) return;
+      db.transaction(DBHelper.REVIEWS_STORE_NAME, 'readwrite').objectStore(DBHelper.REVIEWS_STORE_NAME).delete(id);
+      callback()
+    }).catch(err => console.log(err))
+  }
+
+  static updateDB() {
+    DBHelper.dbPromise().then(db => {
+      if (!db) return;
+      return db.transaction(DBHelper.REVIEWS_STORE_NAME).objectStore(DBHelper.REVIEWS_STORE_NAME).index('hesUpdates').openCursor('true');
+    }).then(function loopCursor(cursor) {
+      if (!cursor) return;
+      let review = cursor.value;
+      DBHelper.deleteReviewFromDB(review.id, () => {
+        review['hesUpdates'] = 'false';
+        DBHelper.addReview(review);
+      });
+      return cursor.continue().then(loopCursor);
+    });
+    DBHelper.dbPromise().then(db => {
+      if (!db) return;
+      return db.transaction(DBHelper.RESTAURANTS_STORE_NAME).objectStore(DBHelper.RESTAURANTS_STORE_NAME).index('hesUpdates').openCursor('true');
+    }).then(function loopCursor(cursor) {
+      if (!cursor) return;
+      //todo
+      return cursor.continue().then(loopCursor);
+    });
+  }
 }
+
+window.addEventListener('online', (e) => {
+  DBHelper.updateDB()
+})

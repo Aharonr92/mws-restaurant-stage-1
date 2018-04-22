@@ -85,7 +85,7 @@ gulp.task('minify-sw-dev', () => {
     .pipe(gulp.dest(paths.dest));
 });
 
-gulp.task('copy-files', () => gulp.src(['manifest.json', 'favicon.ico']).pipe(gulp.dest(paths.dest)));
+gulp.task('copy-files', () => gulp.src(['manifest.json', 'favicon.ico', 'node_modules/dialog-polyfill/dialog-polyfill.js' , 'node_modules/dialog-polyfill/dialog-polyfill.css' ]).pipe(gulp.dest(paths.dest)));
 
 gulp.task('copy-html-dev', () => gulp.src(['index.html', 'restaurant.html']).pipe(gulp.dest(paths.dest)));
 

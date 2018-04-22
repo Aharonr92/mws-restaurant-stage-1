@@ -74,7 +74,7 @@ h1 {
     height: 80px;
     background-color: #252831;
     text-align: center;
-    line-height:  3;
+    line-height: 3;
     margin: auto;
 }
 
@@ -431,5 +431,345 @@ h1 a {
 
     .inside main {
         padding: 135px 10px 0;
+    }
+}
+
+#reviews-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#reviews-header h3 {
+    margin: 10px 0;
+}
+
+#add-review {
+    background: #a54a00;
+    border-radius: 50%;
+    font-size: 30pt;
+    line-height: 1;
+    color: #eee;
+    width: 56px;
+    height: 56px;
+    border: none;
+    text-align: center;
+    box-shadow: 0 6px 10px 0 #666;
+
+}
+
+#add-review:hover {
+    box-shadow: 0 6px 14px 0 #666;
+    transform: scale(1.05);
+}
+
+#add-review:focus {
+    outline: none;
+    box-shadow: 0 6px 18px 0 #666;
+    transform: scale(1.05);
+
+}
+
+#addReviewDialog::backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+#addReviewDialog + .backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+fieldset,
+label {
+    padding: 0;
+}
+
+.rating {
+    border: none;
+}
+
+.rating > input {
+    display: inline;
+    opacity: 0;
+}
+
+.rating > label:before {
+    margin: 5px;
+    font-size: 1.25em;
+    display: inline-block;
+    content: '☆';
+}
+
+.rating > label {
+    color: #ddd;
+    float: right;
+}
+
+.rating > input:checked ~ label:before,
+
+    /* show gold star when clicked */
+
+.rating:not(:checked) > label:hover:before,
+
+    /* hover current star */
+
+.rating:not(:checked) > label:hover ~ label:before {
+    color: #FFD700;
+    content: "★";
+
+}
+
+/* hover previous stars in list */
+
+.rating > input:checked + label:hover:before,
+
+    /* hover current star when changing rating */
+
+.rating > input:checked ~ label:hover:before,
+.rating > label:hover ~ input:checked ~ label:before,
+
+    /* lighten current selection */
+
+.rating > input:checked ~ label:hover ~ label:before {
+    color: #FFED85;
+    content: "★";
+}
+
+/* form starting stylings ------------------------------- */
+.group {
+    position: relative;
+    margin: 25px 0;
+}
+
+.input {
+    font-size: 18px;
+    padding: 10px 10px 10px 5px;
+    display: block;
+    width: 300px;
+    border: none;
+    border-bottom: 1px solid #757575;
+}
+
+.input:focus {
+    outline: none;
+}
+
+/* LABEL ======================================= */
+.label {
+    color: #999;
+    font-size: 18px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 10px;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+/* active state */
+.input:focus ~ .label, .input:valid ~ .label {
+    top: -20px;
+    font-size: 14px;
+    color: #2196f3;
+}
+
+/* BOTTOM BARS ================================= */
+.bar {
+    position: relative;
+    display: block;
+    width: 300px;
+}
+
+.bar:before, .bar:after {
+    content: '';
+    height: 2px;
+    width: 0;
+    bottom: 1px;
+    position: absolute;
+    background: #2196f3;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+.bar:before {
+    left: 50%;
+}
+
+.bar:after {
+    right: 50%;
+}
+
+/* active state */
+.input:focus ~ .bar:before, .input:focus ~ .bar:after {
+    width: 50%;
+}
+
+/* HIGHLIGHTER ================================== */
+.highlight {
+    position: absolute;
+    height: 60%;
+    width: 100px;
+    top: 25%;
+    left: 0;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* active state */
+.input:focus ~ .highlight {
+    -webkit-animation: inputHighlighter 0.3s ease;
+    -moz-animation: inputHighlighter 0.3s ease;
+    animation: inputHighlighter 0.3s ease;
+}
+
+/* ANIMATIONS ================ */
+@-webkit-keyframes inputHighlighter {
+    from {
+        background: #2196f3;
+    }
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+@-moz-keyframes inputHighlighter {
+    from {
+        background: #2196f3;
+    }
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+@keyframes inputHighlighter {
+    from {
+        background: #2196f3;
+    }
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+.rating-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+#menu > button {
+    margin-left: 10px;
+    font-size: 14px;
+    display: inline-block;
+    height: 36px;
+    min-width: 88px;
+    padding: 6px 16px;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    user-select: none;
+    border: 0;
+    border-radius: 2px;
+    background: #2196f3;
+    color: #fff;
+    outline: 0;
+}
+
+#menu > button:focus {
+    background: #0c85e6
+}
+
+form:invalid #submit {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+#snackbar {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+}
+
+#snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+    to {
+        bottom: 0;
+        opacity: 0;
     }
 }
