@@ -278,11 +278,11 @@ class DBHelper {
       method: 'POST',
       body: JSON.stringify(review)
     })
-      .then(resp => {
-        if (resp.status !== 201) {
-          resp['hesUpdates'] = 'true';
+      .then(res => {
+        if (res.status !== 201) {
+          res['hesUpdates'] = 'true';
         }
-        return resp.json();
+        return res.json();
       })
       .then(rev => {
         rev['hesUpdates'] = 'false';
@@ -290,13 +290,26 @@ class DBHelper {
         });
       })
       .catch(err => {
-        console.log(review)
         review['hesUpdates'] = 'true';
         DBHelper.addReviewToDB(review, () => {
         });
         return review;
       });
     return review;
+  }
+
+  static favoriteRestaurant(restaurant, is_favorite) {
+    if (!restaurant) return;
+    restaurant['is_favorite'] = is_favorite;
+    fetch(`${DBHelper.RESTAURANTS_URL}/${restaurant.id}/?is_favorite=${is_favorite}`, {method: 'PUT'})
+      .then(res => {
+        restaurant['hesUpdates'] = res.status !== 200 ? 'true' : 'false';
+      })
+      .catch(e => {
+        restaurant['hesUpdates'] = 'true'
+      });
+
+    DBHelper.updateRestaurantInDB(restaurant);
   }
 
   static addReviewToDB(review, callback) {
@@ -315,7 +328,16 @@ class DBHelper {
     }).catch(err => console.log(err))
   }
 
+  static updateRestaurantInDB(restaurant, callback) {
+    DBHelper.dbPromise().then(db => {
+      if (!db) return;
+      db.transaction(DBHelper.RESTAURANTS_STORE_NAME, 'readwrite').objectStore(DBHelper.RESTAURANTS_STORE_NAME).put(restaurant);
+      callback();
+    }).catch(err => console.log(err))
+  }
+
   static updateDB() {
+
     DBHelper.dbPromise().then(db => {
       if (!db) return;
       return db.transaction(DBHelper.REVIEWS_STORE_NAME).objectStore(DBHelper.REVIEWS_STORE_NAME).index('hesUpdates').openCursor('true');
@@ -328,12 +350,15 @@ class DBHelper {
       });
       return cursor.continue().then(loopCursor);
     });
+
     DBHelper.dbPromise().then(db => {
       if (!db) return;
       return db.transaction(DBHelper.RESTAURANTS_STORE_NAME).objectStore(DBHelper.RESTAURANTS_STORE_NAME).index('hesUpdates').openCursor('true');
     }).then(function loopCursor(cursor) {
       if (!cursor) return;
-      //todo
+      let restaurant = cursor.value;
+      restaurant['hesUpdates'] = 'false';
+      DBHelper.favoriteRestaurant(restaurant, restaurant['is_favorite']);
       return cursor.continue().then(loopCursor);
     });
   }
@@ -341,4 +366,4 @@ class DBHelper {
 
 window.addEventListener('online', (e) => {
   DBHelper.updateDB()
-})
+});

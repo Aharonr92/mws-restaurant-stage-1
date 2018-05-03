@@ -10,6 +10,10 @@ const statics = [
   'favicon.ico',
   'index.html',
   'restaurant.html',
+  'js/vendor.js',
+  'css/styles.css',
+  'js/restaurant_info.js',
+  'js/main.js'
 ];
 
 const images = [

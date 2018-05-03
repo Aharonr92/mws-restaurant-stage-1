@@ -78,8 +78,9 @@ gulp.task('minify-css-prod', () => {
 gulp.task('minify-sw-prod', () => gulp.src(['sw.js']).pipe(uglify()).pipe(gulp.dest(paths.dest)));
 
 gulp.task('minify-sw-dev', () => {
-  return gulp.src(['sw.js'])
+  return gulp.src(['sw-dev.js'])
     .pipe(sourceMaps.init())
+    .pipe(concat('sw.js'))//used for rename only
     .pipe(uglify())
     .pipe(sourceMaps.write('./'))
     .pipe(gulp.dest(paths.dest));
@@ -107,7 +108,7 @@ gulp.task('serve', () => {
   browserSync.init({
     server: paths.dest,
     port: 8000,
-    // ui: false
+    ui: false
   }, (err, bs) => bs.addMiddleware('*', connectGzipStatic, {override: true}));
 });
 

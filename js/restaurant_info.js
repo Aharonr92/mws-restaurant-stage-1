@@ -81,6 +81,12 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
 
+  const favoriteToggle = document.getElementById('restaurant-favorite');
+  if (restaurant.is_favorite) favoriteToggle.classList.add('is-favorite');
+  favoriteToggle.tabIndex = '0';
+  favoriteToggle.setAttribute('aria-label', `Favorite restaurant ${restaurant.name}`);
+  favoriteToggle.addEventListener('click', event => favoriteRestaurant(event.target, restaurant));
+
   // fill operating hours
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
@@ -256,4 +262,14 @@ submitReview = () => {
 cancelAddReview = () => {
   document.querySelector('form').reset();
   document.querySelector('dialog').close();
+};
+
+favoriteRestaurant = (target, restaurant) => {
+  if (target.className.indexOf('is-favorite') > -1) {
+    target.classList.remove('is-favorite');
+    DBHelper.favoriteRestaurant(restaurant, false);
+  } else {
+    target.classList.add('is-favorite');
+    DBHelper.favoriteRestaurant(restaurant, true);
+  }
 };
